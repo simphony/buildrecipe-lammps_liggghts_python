@@ -14,5 +14,5 @@ The resulting egg will be in the `dist` directory
 
 To upload the egg to EDM repo, use::
 
-    python builder.py egg_upload
+    python builder.py upload_egg
 
