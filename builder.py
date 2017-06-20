@@ -27,6 +27,7 @@ name = '{NAME}'
 add_files = [("build/python/", '.*', '/')]
 """
 
+clone_dir="lammps-"+VERSION
 
 if not os.path.exists(workspace):
     os.makedirs(workspace)
@@ -47,17 +48,17 @@ def cli():
 
 @cli.command()
 def egg():
-    if not os.path.exists(lammps_dir):
-        common.run("git clone --branch r"+VERSION+" http://git.lammps.org/lammps-ro.git "+lammps_dir)
+    if not os.path.exists(clone_dir):
+        common.run("git clone --branch r"+VERSION+" http://git.lammps.org/lammps-ro.git "+clone_dir)
 
     shutil.copy("files/Makefile.centos6",
-        os.path.join(lammps_dir, "src", "MAKE", "MACHINES", "Makefile.centos6"))
+        os.path.join(clone_dir, "src", "MAKE", "MACHINES", "Makefile.centos6"))
 
-    common.run("make -C "+os.path.join(lammps_dir, "src")+" centos6 -j 3 mode=shlib")
+    common.run("make -C "+os.path.join(clone_dir, "src")+" centos6 -j 3 mode=shlib")
 
     os.makedirs("build/python")
 
-    with common.cd(os.path.join(lammps_dir, "python")):
+    with common.cd(os.path.join(clone_dir, "python")):
         common.edmenv_run("python install.py ../../build/python")
 
     common.edmenv_run("python setup.py bdist_egg")
@@ -67,23 +68,21 @@ def egg():
 
 
 @cli.command()
-def egg_upload():
+def upload_egg():
     egg_path = "dist/{NAME}-{VERSION}-{BUILD}.egg".format(
         NAME=NAME,
         VERSION=VERSION,
         BUILD=BUILD)
     click.echo("Uploading {} to EDM repo".format(egg_path))
 
-    common.edmenv_run(["pip install hatcher"])
-    common.edmenv_run(["hatcher eggs upload enthought simphony-dev rh5-x86_64"+egg_path)
+    common.upload_egg(egg_path)
 
     click.echo("Done")
 
 
 @cli.command()
 def clean():
-    for dir in ["build", workspace, lammps_dir, "lammps_bin.egg-info", "dist"]:
-        shutil.rmtree(dir)
+    common.clean(["build", workspace, clone_dir, "lammps_bin.egg-info", "dist", "buildrecipes-common"])
 
 
 cli()
