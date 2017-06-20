@@ -1,0 +1,7 @@
+build/
+buildrecipes-common/
+dist/
+endist.dat
+lammps-13864/
+lammps_python.egg-info/
+*.pyc
