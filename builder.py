@@ -10,7 +10,7 @@ def bootstrap_common():
     if not os.path.exists("buildrecipes-common"):
         subprocess.check_call([
             "git", "clone",
-            "git@github.com:simphony/buildrecipes-common.git",
+            "http://github.com/simphony/buildrecipes-common.git",
             ])
     sys.path.insert(0, "buildrecipes-common")
 
@@ -20,25 +20,7 @@ import common
 workspace = common.workspace()
 common.edmenv_setup()
 
-endist_dat_template = """
-build = {BUILD}
-version = '{VERSION}'
-name = '{NAME}'
-add_files = [("build/python/", '.*', '/')]
-"""
-
 clone_dir="lammps-"+VERSION
-
-if not os.path.exists(workspace):
-    os.makedirs(workspace)
-
-
-def write_endist_dat():
-    with open("endist.dat", "w") as f:
-        f.write(endist_dat_template.format(NAME=NAME,
-            VERSION=VERSION,
-            BUILD=BUILD))
-
 
 
 @click.group()
@@ -62,9 +44,8 @@ def egg():
         common.edmenv_run("python install.py ../../build/python")
 
     common.edmenv_run("python setup.py bdist_egg")
-    write_endist_dat()
-    common.run("edm repack-egg dist/{NAME}-{VERSION}-py2.7.egg".format(
-        NAME=NAME, VERSION=VERSION))
+    common.run("edm repack-egg -b {BUILD} dist/{NAME}-{VERSION}-py2.7.egg".format(
+        NAME=NAME, VERSION=VERSION, BUILD=BUILD))
 
 
 @cli.command()
@@ -82,7 +63,7 @@ def upload_egg():
 
 @cli.command()
 def clean():
-    common.clean(["build", workspace, clone_dir, "lammps_bin.egg-info", "dist", "buildrecipes-common"])
+    common.clean(["build", clone_dir, "lammps_python.egg-info", "dist", "buildrecipes-common"])
 
 
 cli()
