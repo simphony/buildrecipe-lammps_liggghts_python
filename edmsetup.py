@@ -70,8 +70,9 @@ def egg():
 
     # Build the shared library
     common.run("make -C "+os.path.join(clone_dir, "src")+" centos6 -j 3 mode=shlib")
+    current_dir = os.getcwd()
     with common.cd(os.path.join(clone_dir, "python")):
-        common.edmenv_run("python install.py ../../build/python")
+        common.edmenv_run("python install.py "+os.path.join(current_dir, "build", "python"))
 
     # Build liggghts
     common.run("make -C "+os.path.join(clone_dir, "myliggghts", "src")+" centos6 -j 3")
@@ -93,7 +94,7 @@ def upload_egg():
 
 @cli.command()
 def clean():
-    common.clean(["endist", ".devenv", "build", clone_dir, "lammps_bin.egg-info", "dist"])
+    common.clean(["endist", ".devenv", "build", clone_dir, "lammps_liggghts_python.egg-info", "dist"])
 
 
 cli()
